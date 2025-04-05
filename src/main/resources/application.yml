@@ -1,0 +1,44 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/cnlearning?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false
+    username: root
+    password: 20020627zwl
+  sql:
+    init:
+      mode: never  # 禁用SQL初始化
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
+      file-size-threshold: 2KB
+      location: ${java.io.tmpdir}
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.vms.cnlearning.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql
+
+jwt:
+  secret: cnlearning@20240602#network!management$system
+  expiration: 7200000 # 2小时过期时间，单位毫秒
+
+# 文件上传配置
+upload:
+  path: uploads/resources  # 相对路径，会在项目根目录下创建
+  allowed-types: mp4,ppt,pptx,pdf,doc,docx,zip 

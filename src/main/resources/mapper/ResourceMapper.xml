@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vms.cnlearning.mapper.ResourceMapper">
+  
+  <resultMap id="BaseResultMap" type="com.vms.cnlearning.entity.Resource">
+    <id column="res_id" jdbcType="INTEGER" property="resId" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="file_path" jdbcType="VARCHAR" property="filePath" />
+    <result column="uploader_id" jdbcType="INTEGER" property="uploaderId" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="uploader" jdbcType="VARCHAR" property="uploader" />
+  </resultMap>
+  
+  <sql id="Base_Column_List">
+    r.res_id, r.title, r.type, r.file_path, r.uploader_id, r.created_at
+  </sql>
+  
+  <!-- 插入资源 -->
+  <insert id="insert" parameterType="com.vms.cnlearning.entity.Resource" useGeneratedKeys="true" keyProperty="resId">
+    insert into resource (title, type, file_path, uploader_id)
+    values (#{title,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
+            #{filePath,jdbcType=VARCHAR}, #{uploaderId,jdbcType=INTEGER})
+  </insert>
+  
+  <!-- 根据条件查询资源列表 -->
+  <select id="selectList" resultMap="BaseResultMap">
+    select 
+      <include refid="Base_Column_List" />, u.username as uploader
+    from 
+      resource r
+    left join 
+      user u on r.uploader_id = u.user_id
+    <where>
+      <if test="type != null and type != ''">
+        r.type = #{type,jdbcType=VARCHAR}
+      </if>
+    </where>
+    order by r.created_at desc
+  </select>
+  
+  <!-- 根据ID查询资源 -->
+  <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+      <include refid="Base_Column_List" />, u.username as uploader
+    from 
+      resource r
+    left join 
+      user u on r.uploader_id = u.user_id
+    where 
+      r.res_id = #{resId,jdbcType=INTEGER}
+  </select>
+  
+</mapper> 
