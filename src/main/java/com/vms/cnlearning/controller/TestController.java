@@ -1,69 +1,80 @@
 package com.vms.cnlearning.controller;
 
-import com.vms.cnlearning.mapper.UserMapper;
+import com.vms.cnlearning.annotation.RequireRole;
+import com.vms.cnlearning.common.PageResult;
+import com.vms.cnlearning.common.Result;
+import com.vms.cnlearning.dto.TestSubmitDTO;
+import com.vms.cnlearning.entity.Test;
+import com.vms.cnlearning.enums.RoleEnum;
+import com.vms.cnlearning.service.TestService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * 测试控制器
  */
 @RestController
+@RequestMapping("/test")
 @Slf4j
 public class TestController {
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private TestService testService;
     
-    @Autowired
-    private UserMapper userMapper;
-
     /**
-     * 测试应用是否正常运行
+     * 提交测试答案
+     * @param testSubmitDTO 测试提交DTO
+     * @return 测试结果
      */
-    @GetMapping("/test")
-    public Map<String, Object> test() {
-        Map<String, Object> result = new HashMap<>();
-        result.put("status", "success");
-        result.put("message", "计算机网络用户管理系统运行正常");
-        result.put("timestamp", System.currentTimeMillis());
-        return result;
+    @PostMapping("/submit")
+    @RequireRole({RoleEnum.STUDENT, RoleEnum.TEACHER, RoleEnum.ADMIN})
+    public Result<Map<String, Object>> submitTest(@RequestBody TestSubmitDTO testSubmitDTO) {
+        log.info("提交测试答案: userId={}, 答案数量={}", testSubmitDTO.getUserId(), 
+                testSubmitDTO.getAnswers() != null ? testSubmitDTO.getAnswers().size() : 0);
+        
+        // 参数校验
+        if (testSubmitDTO.getUserId() == null || testSubmitDTO.getAnswers() == null || testSubmitDTO.getAnswers().isEmpty()) {
+            return Result.error("参数错误，用户ID和答案不能为空");
+        }
+        
+        // 调用服务计算得分
+        int score = testService.submitAnswers(testSubmitDTO);
+        
+        // 封装结果
+        Map<String, Object> data = new HashMap<>();
+        data.put("score", score);
+        
+        log.info("测试结果: userId={}, score={}", testSubmitDTO.getUserId(), score);
+        return Result.success("提交成功", data);
     }
     
     /**
-     * 测试数据库连接是否正常
+     * 获取指定章节的测试题列表
+     * @param chapter 章节
+     * @return 测试题列表
      */
-    @GetMapping("/test/db")
-    public Map<String, Object> testDb() {
-        Map<String, Object> result = new HashMap<>();
-        
-        try {
-            // 测试数据库连接
-            Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user", Integer.class);
-            
-            // 测试Mapper
-            Integer userCount = userMapper.checkUsernameExists("admin001");
-            
-            result.put("status", "success");
-            result.put("message", "数据库连接正常");
-            result.put("userCount", count);
-            result.put("adminExists", userCount > 0 ? "是" : "否");
-            result.put("timestamp", System.currentTimeMillis());
-            
-            log.info("数据库测试成功，用户数量: {}", count);
-        } catch (Exception e) {
-            result.put("status", "error");
-            result.put("message", "数据库连接异常: " + e.getMessage());
-            result.put("timestamp", System.currentTimeMillis());
-            
-            log.error("数据库测试失败", e);
-        }
-        
-        return result;
+    @GetMapping("/chapter/{chapter}")
+    @RequireRole({RoleEnum.STUDENT, RoleEnum.TEACHER, RoleEnum.ADMIN})
+    public Result<List<Test>> getTestsByChapter(@PathVariable String chapter) {
+        log.info("获取章节测试题: chapter={}", chapter);
+        List<Test> tests = testService.getTestsByChapter(chapter);
+        return Result.success("获取成功", tests);
+    }
+    
+    /**
+     * 获取所有测试题
+     * @return 测试题列表
+     */
+    @GetMapping("/list")
+    @RequireRole({RoleEnum.TEACHER, RoleEnum.ADMIN})
+    public Result<List<Test>> getAllTests() {
+        log.info("获取所有测试题");
+        List<Test> tests = testService.getAllTests();
+        return Result.success("获取成功", tests);
     }
 } 

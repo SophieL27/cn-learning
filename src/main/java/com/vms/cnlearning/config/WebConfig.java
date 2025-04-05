@@ -1,6 +1,7 @@
 package com.vms.cnlearning.config;
 
 import com.vms.cnlearning.interceptor.JwtAuthInterceptor;
+import com.vms.cnlearning.interceptor.RoleAuthInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -15,6 +16,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Autowired
     private JwtAuthInterceptor jwtAuthInterceptor;
+    
+    @Autowired
+    private RoleAuthInterceptor roleAuthInterceptor;
 
     /**
      * 配置跨域请求
@@ -25,6 +29,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOriginPatterns("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
+                .exposedHeaders("Authorization")
                 .allowCredentials(true)
                 .maxAge(3600);
     }
@@ -34,8 +39,14 @@ public class WebConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        // JWT认证拦截器
         registry.addInterceptor(jwtAuthInterceptor)
-                .addPathPatterns("/resource/**")
+                .addPathPatterns("/resource/**", "/test/submit", "/discussion")
+                .excludePathPatterns("/login", "/register", "/test/**");
+        
+        // 角色权限拦截器
+        registry.addInterceptor(roleAuthInterceptor)
+                .addPathPatterns("/**")
                 .excludePathPatterns("/login", "/register", "/test/**");
     }
 } 

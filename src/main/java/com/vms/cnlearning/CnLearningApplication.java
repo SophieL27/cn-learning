@@ -15,7 +15,12 @@ public class CnLearningApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(CnLearningApplication.class, args);
-        System.out.println("计算机网络用户管理系统已启动...");
+        System.out.println("===============================================");
+        System.out.println("    计算机网络学习平台已启动");
+        System.out.println("    - 用户管理");
+        System.out.println("    - 学习评估");
+        System.out.println("    - 讨论互动");
+        System.out.println("===============================================");
     }
 
 }

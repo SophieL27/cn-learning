@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vms.cnlearning.mapper.DiscussionMapper">
+  
+  <resultMap id="DiscussionResultMap" type="com.vms.cnlearning.entity.Discussion">
+    <id column="post_id" jdbcType="INTEGER" property="postId" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="author_id" jdbcType="INTEGER" property="authorId" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="username" jdbcType="VARCHAR" property="authorName" />
+  </resultMap>
+  
+  <sql id="Base_Column_List">
+    d.post_id, d.title, d.content, d.author_id, d.type, d.created_at
+  </sql>
+  
+  <!-- 插入讨论帖 -->
+  <insert id="insert" parameterType="com.vms.cnlearning.entity.Discussion" useGeneratedKeys="true" keyProperty="postId">
+    insert into discussion (title, content, author_id, type)
+    values (#{title,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, 
+            #{authorId,jdbcType=INTEGER}, #{type,jdbcType=VARCHAR})
+  </insert>
+  
+  <!-- 根据ID查询讨论帖 -->
+  <select id="selectById" parameterType="java.lang.Integer" resultMap="DiscussionResultMap">
+    select 
+      <include refid="Base_Column_List" />, u.username
+    from 
+      discussion d
+    left join 
+      user u on d.author_id = u.user_id
+    where 
+      d.post_id = #{postId,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 根据类型查询讨论帖列表 -->
+  <select id="selectByType" parameterType="java.lang.String" resultMap="DiscussionResultMap">
+    select 
+      <include refid="Base_Column_List" />, u.username
+    from 
+      discussion d
+    left join 
+      user u on d.author_id = u.user_id
+    where 
+      d.type = #{type,jdbcType=VARCHAR}
+    order by 
+      d.created_at desc
+  </select>
+  
+  <!-- 根据作者ID查询讨论帖列表 -->
+  <select id="selectByAuthorId" parameterType="java.lang.Integer" resultMap="DiscussionResultMap">
+    select 
+      <include refid="Base_Column_List" />, u.username
+    from 
+      discussion d
+    left join 
+      user u on d.author_id = u.user_id
+    where 
+      d.author_id = #{authorId,jdbcType=INTEGER}
+    order by 
+      d.created_at desc
+  </select>
+  
+  <!-- 查询所有讨论帖 -->
+  <select id="selectAll" resultMap="DiscussionResultMap">
+    select 
+      <include refid="Base_Column_List" />, u.username
+    from 
+      discussion d
+    left join 
+      user u on d.author_id = u.user_id
+    order by 
+      d.created_at desc
+  </select>
+  
+</mapper> 

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vms.cnlearning.mapper.TestMapper">
+  
+  <resultMap id="TestResultMap" type="com.vms.cnlearning.entity.Test">
+    <id column="question_id" jdbcType="INTEGER" property="questionId" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="correct_ans" jdbcType="VARCHAR" property="correctAns" />
+    <result column="chapter" jdbcType="VARCHAR" property="chapter" />
+  </resultMap>
+  
+  <sql id="Base_Column_List">
+    question_id, content, correct_ans, chapter
+  </sql>
+  
+  <!-- 根据ID查询测试题 -->
+  <select id="selectById" parameterType="java.lang.Integer" resultMap="TestResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from test
+    where question_id = #{questionId,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 根据章节查询测试题 -->
+  <select id="selectByChapter" parameterType="java.lang.String" resultMap="TestResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from test
+    where chapter = #{chapter,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 查询所有测试题 -->
+  <select id="selectAll" resultMap="TestResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from test
+    order by question_id
+  </select>
+  
+</mapper> 
