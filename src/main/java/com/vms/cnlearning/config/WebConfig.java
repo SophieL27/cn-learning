@@ -42,11 +42,17 @@ public class WebConfig implements WebMvcConfigurer {
         // JWT认证拦截器
         registry.addInterceptor(jwtAuthInterceptor)
                 .addPathPatterns("/resource/**", "/test/submit", "/discussion")
-                .excludePathPatterns("/login", "/register", "/test/**");
+                .excludePathPatterns("/login", "/register", "/test/**",
+                        "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", 
+                        "/api-docs/**", "/swagger-resources/**", "/webjars/**", 
+                        "/doc.html");
         
         // 角色权限拦截器
         registry.addInterceptor(roleAuthInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/login", "/register", "/test/**");
+                .excludePathPatterns("/login", "/register", "/test/**",
+                        "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", 
+                        "/api-docs/**", "/swagger-resources/**", "/webjars/**", 
+                        "/doc.html");
     }
 } 

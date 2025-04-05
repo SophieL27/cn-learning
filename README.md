@@ -189,4 +189,8 @@ GET /resources?page=1&pageSize=10&type=视频
 - **角色权限**：
   - 学生：仅可浏览资源、提交测试、参与讨论
   - 教师：额外支持资源上传、答疑回复、查看所有测试题
-  - 管理员：支持用户管理、数据统计 
+  - 管理员：支持用户管理、数据统计
+
+##swagger接口文档
+
+http://localhost:8080/swagger-ui.html

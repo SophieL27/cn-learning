@@ -5,6 +5,11 @@ import com.vms.cnlearning.common.Result;
 import com.vms.cnlearning.entity.Resource;
 import com.vms.cnlearning.service.ResourceService;
 import com.vms.cnlearning.vo.ResourceVO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -20,6 +25,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @Slf4j
+@Tag(name = "学习资源", description = "包括资源上传、资源列表获取等功能")
 public class ResourceController {
 
     @Autowired
@@ -29,10 +35,20 @@ public class ResourceController {
      * 上传资源
      */
     @PostMapping("/resource/upload")
+    @Operation(
+        summary = "上传资源", 
+        description = "上传视频或课件类型的学习资源",
+        security = @SecurityRequirement(name = "JWT"),
+        responses = {
+            @ApiResponse(responseCode = "200", description = "上传成功"),
+            @ApiResponse(responseCode = "400", description = "参数错误"),
+            @ApiResponse(responseCode = "403", description = "权限不足")
+        }
+    )
     public Result<Void> uploadResource(
-            @RequestParam("title") String title,
-            @RequestParam("type") String type,
-            @RequestParam("file") MultipartFile file,
+            @Parameter(description = "资源标题", required = true) @RequestParam("title") String title,
+            @Parameter(description = "资源类型，可选值：视频、课件", required = true) @RequestParam("type") String type,
+            @Parameter(description = "资源文件", required = true) @RequestParam("file") MultipartFile file,
             HttpServletRequest request) {
         
         log.info("上传资源请求: title={}, type={}, fileSize={}", title, type, file.getSize());
@@ -66,9 +82,19 @@ public class ResourceController {
      * 获取资源列表
      */
     @GetMapping("/resources")
+    @Operation(
+        summary = "获取资源列表", 
+        description = "分页获取资源列表，可按类型筛选",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "获取成功")
+        }
+    )
     public Result<PageResult<ResourceVO>> getResourceList(
+            @Parameter(description = "资源类型，可选值：视频、课件") 
             @RequestParam(value = "type", required = false) String type,
+            @Parameter(description = "页码，默认为1") 
             @RequestParam(value = "page", defaultValue = "1") int page,
+            @Parameter(description = "每页大小，默认为10") 
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
         
         log.info("获取资源列表: type={}, page={}, pageSize={}", type, page, pageSize);

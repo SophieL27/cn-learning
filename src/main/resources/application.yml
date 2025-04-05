@@ -23,6 +23,18 @@ spring:
       file-size-threshold: 2KB
       location: ${java.io.tmpdir}
 
+# SpringDoc OpenAPI 配置
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    doc-expansion: none
+    tags-sorter: alpha
+    operations-sorter: alpha
+  packages-to-scan: com.vms.cnlearning.controller
+
 mybatis:
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.vms.cnlearning.entity

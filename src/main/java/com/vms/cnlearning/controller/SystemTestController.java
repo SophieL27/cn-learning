@@ -1,6 +1,9 @@
 package com.vms.cnlearning.controller;
 
 import com.vms.cnlearning.mapper.UserMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,6 +18,7 @@ import java.util.Map;
  */
 @RestController
 @Slf4j
+@Tag(name = "系统测试", description = "系统功能测试接口")
 public class SystemTestController {
 
     @Autowired
@@ -27,6 +31,13 @@ public class SystemTestController {
      * 测试应用是否正常运行
      */
     @GetMapping("/test")
+    @Operation(
+        summary = "系统状态检查", 
+        description = "检查系统是否正常运行",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "系统正常")
+        }
+    )
     public Map<String, Object> test() {
         Map<String, Object> result = new HashMap<>();
         result.put("status", "success");

@@ -6,6 +6,12 @@ import com.vms.cnlearning.dto.RegisterRequest;
 import com.vms.cnlearning.entity.User;
 import com.vms.cnlearning.service.UserService;
 import com.vms.cnlearning.util.JwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +24,7 @@ import java.util.Map;
  */
 @RestController
 @Slf4j
+@Tag(name = "用户管理", description = "包括用户登录、注册等功能")
 public class UserController {
 
     @Autowired
@@ -32,7 +39,15 @@ public class UserController {
      * @return 登录结果
      */
     @PostMapping("/login")
-    public Result<Map<String, String>> login(@RequestBody LoginRequest loginRequest) {
+    @Operation(summary = "用户登录", description = "用户登录接口，返回JWT令牌",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "登录成功"),
+            @ApiResponse(responseCode = "400", description = "登录失败")
+        }
+    )
+    public Result<Map<String, String>> login(
+            @Parameter(description = "登录信息", required = true) 
+            @RequestBody LoginRequest loginRequest) {
         log.info("用户登录请求：用户名={}, 角色={}", loginRequest.getUsername(), loginRequest.getRole());
         
         // 参数校验
@@ -69,7 +84,15 @@ public class UserController {
      * @return 注册结果
      */
     @PostMapping("/register")
-    public Result<Void> register(@RequestBody RegisterRequest registerRequest) {
+    @Operation(summary = "用户注册", description = "注册新用户，支持学生、教师和管理员角色",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "注册成功"),
+            @ApiResponse(responseCode = "400", description = "注册失败")
+        }
+    )
+    public Result<Void> register(
+            @Parameter(description = "注册信息", required = true) 
+            @RequestBody RegisterRequest registerRequest) {
         log.info("用户注册请求：用户名={}, 角色={}", registerRequest.getUsername(), registerRequest.getRole());
         
         // 参数校验

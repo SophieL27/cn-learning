@@ -7,6 +7,11 @@ import com.vms.cnlearning.dto.DiscussionDTO;
 import com.vms.cnlearning.entity.Discussion;
 import com.vms.cnlearning.enums.RoleEnum;
 import com.vms.cnlearning.service.DiscussionService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +24,7 @@ import java.util.List;
  */
 @RestController
 @Slf4j
+@Tag(name = "讨论互动", description = "包括发布讨论帖、查看讨论等功能")
 public class DiscussionController {
 
     @Autowired
@@ -32,7 +38,18 @@ public class DiscussionController {
      */
     @PostMapping("/discussion")
     @RequireRole({RoleEnum.STUDENT, RoleEnum.TEACHER, RoleEnum.ADMIN})
+    @Operation(
+        summary = "发布讨论帖", 
+        description = "发布课程讨论或实验答疑类型的讨论帖",
+        security = @SecurityRequirement(name = "JWT"),
+        responses = {
+            @ApiResponse(responseCode = "200", description = "发布成功"),
+            @ApiResponse(responseCode = "400", description = "参数错误"),
+            @ApiResponse(responseCode = "403", description = "权限不足")
+        }
+    )
     public Result<Void> createDiscussion(
+            @Parameter(description = "讨论帖信息", required = true)
             @RequestBody DiscussionDTO discussionDTO,
             HttpServletRequest request) {
         
@@ -81,9 +98,21 @@ public class DiscussionController {
      */
     @GetMapping("/discussions")
     @RequireRole({RoleEnum.STUDENT, RoleEnum.TEACHER, RoleEnum.ADMIN})
+    @Operation(
+        summary = "获取讨论帖列表", 
+        description = "分页获取讨论帖列表，可按类型筛选",
+        security = @SecurityRequirement(name = "JWT"),
+        responses = {
+            @ApiResponse(responseCode = "200", description = "获取成功"),
+            @ApiResponse(responseCode = "403", description = "权限不足")
+        }
+    )
     public Result<PageResult<Discussion>> getDiscussions(
+            @Parameter(description = "讨论类型，可选值：课程讨论、实验答疑") 
             @RequestParam(value = "type", required = false) String type,
+            @Parameter(description = "页码，默认为1") 
             @RequestParam(value = "page", defaultValue = "1") int page,
+            @Parameter(description = "每页大小，默认为10") 
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
         
         log.info("获取讨论帖列表: type={}, page={}, pageSize={}", type, page, pageSize);
@@ -114,7 +143,19 @@ public class DiscussionController {
      */
     @GetMapping("/discussion/{postId}")
     @RequireRole({RoleEnum.STUDENT, RoleEnum.TEACHER, RoleEnum.ADMIN})
-    public Result<Discussion> getDiscussion(@PathVariable Integer postId) {
+    @Operation(
+        summary = "获取指定讨论帖", 
+        description = "获取指定ID的讨论帖详情",
+        security = @SecurityRequirement(name = "JWT"),
+        responses = {
+            @ApiResponse(responseCode = "200", description = "获取成功"),
+            @ApiResponse(responseCode = "400", description = "讨论帖不存在"),
+            @ApiResponse(responseCode = "403", description = "权限不足")
+        }
+    )
+    public Result<Discussion> getDiscussion(
+            @Parameter(description = "讨论帖ID", required = true)
+            @PathVariable Integer postId) {
         log.info("获取讨论帖: postId={}", postId);
         
         Discussion discussion = discussionService.getDiscussionById(postId);
